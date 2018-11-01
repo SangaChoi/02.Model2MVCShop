@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
 
 <%@ page import="java.util.*" %>
-<%@ page import="com.model2.mvc.service.domain.Product" %>
+<%@ page import="com.model2.mvc.service.domain.*" %>
 <%@ page import="com.model2.mvc.common.Search" %>
 <%@page import="com.model2.mvc.common.Page"%>
 <%@page import="com.model2.mvc.common.util.CommonUtil"%>
@@ -10,6 +10,7 @@
 	
 	List<Product> list= (List<Product>)request.getAttribute("list");
 	Page resultPage=(Page)request.getAttribute("resultPage");
+	User user=(User)session.getAttribute("user");
 	
 	Search search = (Search)request.getAttribute("search");
 
@@ -127,9 +128,11 @@ function fncGetProductList(currentPage) {
 		<td align="left">
 		<%if(menu.equals("manage")){ %>
 			<a href="/updateProductView.do?prodNo=<%=vo.getProdNo() %>&menu=<%=menu%>"><%=vo.getProdName() %></a>
-		<%}else if(menu.equals("search")){%>
+		<%}else if(menu.equals("search") && vo.getProTranCode()!="0"){ %>
+			<%=vo.getProdName() %>	
+		<%}else{%>
 			<a href="/getProduct.do?prodNo=<%=vo.getProdNo() %>&menu=<%=menu%>"><%=vo.getProdName() %></a>
-		<%} %>	
+		<%} %>
 		</td>	
 		<td></td>
 		<td align="left"><%=vo.getPrice() %></td>
@@ -138,7 +141,23 @@ function fncGetProductList(currentPage) {
 		<td></td>
 		<td align="left">
 		
-			배송중
+		<%if(vo.getProTranCode().equals("0")){ %>
+		판매중	
+		<%}else if(menu.equals("manage") && vo.getProTranCode().equals("1  ")){%>
+		구매완료 <a href="/updateTranCodeByProd.do?prodNo=<%=vo.getProdNo() %>&tranCode=2">배송하기</a>
+		<%}else if(menu.equals("manage") && vo.getProTranCode().equals("2  ")){%>
+		배송중
+		<%}else if(menu.equals("manage") && vo.getProTranCode().equals("3  ")){%>
+		배송완료		
+		<%}else if(menu.equals("search") && user.getRole().equals("admin") && vo.getProTranCode().equals("1  ")){ %>	
+		구매완료
+		<%}else if(menu.equals("search") && user.getRole().equals("admin") && vo.getProTranCode().equals("2  ")){ %>
+		배송중
+		<%}else if(menu.equals("search") && user.getRole().equals("admin") && vo.getProTranCode().equals("3  ")){ %>
+		배송완료
+		<%}else{%>
+		재고없음
+		<%} %>
 		
 		</td>	
 	</tr>

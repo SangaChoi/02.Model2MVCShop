@@ -41,16 +41,20 @@ public class ProductDAO {
 		
 		Connection con = DBUtil.getConnection();
 		
-		String sql="SELECT * FROM PRODUCT ";
+		String sql= 
+				"SELECT p.PROD_NO, p.prod_name, p.prod_detail, p.MANUFACTURE_DAY, p.PRICE, p.IMAGE_FILE, p.reg_date, t.tran_status_code"
+				+" FROM product p, transaction t ";
 		
-		if(search.getSearchCondition() !=null && !search.getSearchKeyword().equals("")) {
+		if(search.getSearchCondition() !=null) {
 			if(search.getSearchCondition().equals("0")) {
-				sql +="WHERE PROD_NO LIKE '%"+search.getSearchKeyword()+"%'";
+				sql +="WHERE p.PROD_NO like '%"+search.getSearchKeyword()+"%' AND p.prod_no=t.prod_no(+)";
 			}else if(search.getSearchCondition().equals("1")) {
-				sql +="WHERE PROD_NAME LIKE '%"+search.getSearchKeyword()+"%'";
+				sql +="WHERE p.PROD_NAME like '%"+search.getSearchKeyword()+"%' AND p.prod_no=t.prod_no(+)";
 			}else if(search.getSearchCondition().equals("2")) {
-				sql +="WHERE PRICE LIKE '%"+search.getSearchKeyword()+"%'";
+				sql +="WHERE p.PRICE like '%"+search.getSearchKeyword()+"%' AND p.prod_no=t.prod_no(+)";
 			}
+		}else {
+			sql+=" WHERE p.prod_no=t.prod_no(+)";
 		}
 		sql += " ORDER BY PROD_NO";
 		
@@ -76,7 +80,17 @@ public class ProductDAO {
 			product.setPrice(rs.getInt("PRICE"));
 			product.setFileName(rs.getString("IMAGE_FILE"));
 			product.setRegDate(rs.getDate("REG_DATE"));
+			
+			if(rs.getString("tran_status_code")==null) {
+				product.setProTranCode("0");
+			}else {
+				product.setProTranCode(rs.getString("tran_status_code"));
+			}
+			
 			list.add(product);
+			
+			System.out.println(product);
+				
 		}
 		
 		map.put("totalCount", new Integer(totalCount));
@@ -114,7 +128,6 @@ public class ProductDAO {
 		}
 		
 		con.close();
-		System.out.println("DAO : "+productVO);
 		return productVO;
 	}
 	

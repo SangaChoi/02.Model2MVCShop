@@ -9,6 +9,7 @@ import com.model2.mvc.common.Page;
 import com.model2.mvc.common.Search;
 import com.model2.mvc.framework.Action;
 import com.model2.mvc.service.domain.Purchase;
+import com.model2.mvc.service.domain.User;
 import com.model2.mvc.service.purchase.PurchaseService;
 import com.model2.mvc.service.purchase.impl.PurchaseServiceImpl;
 import com.model2.mvc.service.user.UserService;
@@ -18,6 +19,8 @@ public class ListPurchaseAction extends Action{
 
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+				
+		String buyerId=request.getParameter("buyerId");
 		
 		Search search=new Search();
 		
@@ -32,9 +35,8 @@ public class ListPurchaseAction extends Action{
 		int pageSize = Integer.parseInt(getServletContext().getInitParameter("pageSize"));
 		int pageUnit  =  Integer.parseInt(getServletContext().getInitParameter("pageUnit"));
 		search.setPageSize(pageSize);
-		
+				
 		PurchaseService service=new PurchaseServiceImpl();
-		System.out.println("================================");
 		Map<String,Object> map=service.getPurchaseList(search, buyerId);
 		
 		Page resultPage=new Page(currentPage, ((Integer)map.get("totalCount")).intValue(), pageUnit, pageSize);
@@ -42,7 +44,7 @@ public class ListPurchaseAction extends Action{
 		request.setAttribute("resultPage", resultPage);
 		request.setAttribute("search", search);
 				
-		return "forward:/product/listProduct.jsp";
+		return "forward:/purchase/listPurchase.jsp";
 	}
 
 }

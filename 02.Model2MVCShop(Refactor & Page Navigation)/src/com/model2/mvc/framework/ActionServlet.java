@@ -19,17 +19,12 @@ public class ActionServlet extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		super.init();
-		System.out.println("액션서블릿 init() 시작");
 		String resources=getServletConfig().getInitParameter("resources");
 		requestMapping=RequestMapping.getInstance(resources);
-		System.out.println("액션서블릿 init() 끝");
 	}
 
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-
-		System.out.println("--------------------액션서블릿 service() 시작");
 		
 		String url = request.getRequestURI();
 		System.out.println("액션서블릿 url : "+url);
@@ -55,6 +50,5 @@ public class ActionServlet extends HttpServlet {
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
-		System.out.println("--------------------액션서블릿 service() 끝");
 	}
 }

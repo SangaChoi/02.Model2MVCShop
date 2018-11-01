@@ -1,14 +1,31 @@
 <%@ page contentType="text/html; charset=EUC-KR"%>
+<%@ page import="java.util.*" %>
+<%@ page import="com.model2.mvc.service.domain.*" %>
+<%@ page import="com.model2.mvc.common.*" %>
+<%@page import="com.model2.mvc.common.util.CommonUtil"%>
 
-    <html>
+
+<%
+	List<Purchase> list= (List<Purchase>)request.getAttribute("list");
+	Page resultPage=(Page)request.getAttribute("resultPage");
+	User user=(User)session.getAttribute("user");
+	
+	Search search = (Search)request.getAttribute("search");
+	//==> null 을 ""(nullString)으로 변경
+	String searchCondition = CommonUtil.null2str(search.getSearchCondition());
+	String searchKeyword = CommonUtil.null2str(search.getSearchKeyword());
+%>
+
+<html>
 <head>
 <title>구매 목록조회</title>
 
 <link rel="stylesheet" href="/css/admin.css" type="text/css">
 
 <script type="text/javascript">
-	function fncGetUserList() {
-		document.detailForm.submit();
+	function fncGetPurchaseList(currentPage) {
+		document.getElementById("currentPage").value = currentPage;
+	   	document.detailForm.submit();
 	}
 </script>
 </head>
@@ -17,7 +34,7 @@
 
 <div style="width: 98%; margin-left: 10px;">
 
-<form name="detailForm" action="/listUser.do" method="post">
+<form name="detailForm" action="/listPurchase.do?buyerId=<%=request.getParameter("buyerId") %>" method="post">
 
 <table width="100%" height="37" border="0" cellpadding="0"	cellspacing="0">
 	<tr>
@@ -35,7 +52,7 @@
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0"	style="margin-top: 10px;">
 	<tr>
-		<td colspan="11">전체 9 건수, 현재 1 페이지</td>
+		<td colspan="11">전체  <%= resultPage.getTotalCount() %> 건수, 현재 <%= resultPage.getCurrentPage() %> 페이지</td>
 	</tr>
 	<tr>
 		<td class="ct_list_b" width="100">No</td>
@@ -53,101 +70,73 @@
 	<tr>
 		<td colspan="11" bgcolor="808285" height="1"></td>
 	</tr>
-
 	
+	<%
+	for(int i=0; i<list.size(); i++) {
+		Purchase purchaseVO = list.get(i);
+	%>	
 	
-	<tr class="ct_list_pop">
+		<tr class="ct_list_pop">
 		<td align="center">
-			<a href="/getPurchase.do?tranNo=10001">3</a>
+			<a href="/getPurchase.do?tranNo=<%=purchaseVO.getTranNo()%>"><%= i + 1 %></a>
 		</td>
 		<td></td>
 		<td align="left">
-			<a href="/getUser.do?userId=user19">user19</a>
+			<a href="/getUser.do?userId=<%=purchaseVO.getBuyer().getUserId()%>"><%=purchaseVO.getBuyer().getUserId() %></a>
 		</td>
 		<td></td>
-		<td align="left">SCOTT</td>
+		<td align="left"><%=purchaseVO.getReceiverName() %></td>
 		<td></td>
-		<td align="left">null</td>
-		<td></td>
-		<td align="left">현재
-				
-					배송완료
-				상태 입니다.</td>
+		<td align="left"><%=purchaseVO.getReceiverPhone() %></td>
 		<td></td>
 		<td align="left">
-			
+		
+	 	<%if(purchaseVO.getTranCode().equals("1  ")){ %>
+		현재 구매완료 상태입니다.
+		<%}else if(purchaseVO.getTranCode().equals("2  ")){  %>
+		현재 배송중 상태입니다.
+		<%}else if(purchaseVO.getTranCode().equals("3  ")){ %>
+		현재 배송완료 상태입니다.
+		<%} %>
+	
+	
+		</td>
+		<td></td>
+		<td align="left">
+		<%if(purchaseVO.getTranCode().equals("2  ")){ %>
+		<a href="/updateTranCode.do?tranNo=<%=purchaseVO.getTranNo()%>&tranCode=3&buyerId=<%=user.getUserId()%>">물건도착</a>
+		<%}else if(purchaseVO.getTranCode().equals("3  ")){ %>
+		<%} %>
+		
 		</td>
 	</tr>
 	<tr>
 		<td colspan="11" bgcolor="D6D7D6" height="1"></td>
-	</tr>
-	
-	
-	<tr class="ct_list_pop">
-		<td align="center">
-			<a href="/getPurchase.do?tranNo=10020">2</a>
-		</td>
-		<td></td>
-		<td align="left">
-			<a href="/getUser.do?userId=user19">user19</a>
-		</td>
-		<td></td>
-		<td align="left">SCOTT</td>
-		<td></td>
-		<td align="left">null</td>
-		<td></td>
-		<td align="left">현재
-				
-					구매완료
-				상태 입니다.</td>
-		<td></td>
-		<td align="left">
-			
-		</td>
-	</tr>
-	<tr>
-		<td colspan="11" bgcolor="D6D7D6" height="1"></td>
-	</tr>
-	
-	
-	<tr class="ct_list_pop">
-		<td align="center">
-			<a href="/getPurchase.do?tranNo=10099">1</a>
-		</td>
-		<td></td>
-		<td align="left">
-			<a href="/getUser.do?userId=user19">user19</a>
-		</td>
-		<td></td>
-		<td align="left">SCOTT</td>
-		<td></td>
-		<td align="left">010-1111-2222</td>
-		<td></td>
-		<td align="left">현재
-				
-					구매완료
-				상태 입니다.</td>
-		<td></td>
-		<td align="left">
-			
-		</td>
-	</tr>
-	<tr>
-		<td colspan="11" bgcolor="D6D7D6" height="1"></td>
-	</tr>
-	
+	</tr>	
+	<%} %>
 </table>
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 10px;">
 	<tr>
 		<td align="center">
-		 
-			<a href="/listPurchase.do?page=1">1</a> 
-		 
-			<a href="/listPurchase.do?page=2">2</a> 
-		 
-			<a href="/listPurchase.do?page=3">3</a> 
 		
+		<input type="hidden" id="currentPage" name="currentPage" value=""/>
+			<% if( resultPage.getCurrentPage() <= resultPage.getPageUnit() ){ %>
+					◀ 이전
+			<% }else{ %>
+					<a href="javascript:fncGetPuchaseList('<%=resultPage.getCurrentPage()-1%>')">◀ 이전</a>
+			<% } %>
+
+			<%	for(int i=resultPage.getBeginUnitPage();i<= resultPage.getEndUnitPage() ;i++){	%>
+					<a href="javascript:fncGetPurchaseList('<%=i %>');"><%=i %></a>
+			<% 	}  %>
+	
+			<% if( resultPage.getEndUnitPage() >= resultPage.getMaxPage() ){ %>
+					이후 ▶
+			<% }else{ %>
+					<a href="javascript:fncGetPurchaseList('<%=resultPage.getEndUnitPage()+1%>')">이후 ▶</a>
+			<% } %>
+	
 		</td>
 	</tr>
 </table>
